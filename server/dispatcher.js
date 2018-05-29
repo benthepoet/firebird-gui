@@ -38,6 +38,6 @@ module.exports = async (wsKey, { type, body }) => {
   const handler = handlers[type];
   
   if (handler !== undefined) {
-    return await handler(body);
+    return await handler(wsKey, body);
   }
 };
