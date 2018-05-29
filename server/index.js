@@ -7,11 +7,12 @@ const serverOptions = {
 
 const wss = new WebSocket.Server(serverOptions);
 
-wss.on('connection', ws => {
-  console.log('user connected');
+wss.on('connection', (ws, req) => {
+  const wsKey = req.headers['sec-websocket-key'];
+  console.log(`connection with ${wsKey}`);
   
   ws.on('message', async message => {
-    const response = await dispatcher(message);
+    const response = await dispatcher(wsKey, message);
     ws.send(response);
   });
 });
