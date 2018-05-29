@@ -1,0 +1,22 @@
+{
+  "name": "firebird-gui",
+  "version": "1.0.0",
+  "description": "A web-based interface for working with Firebird databases.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benthepoet/firebird-gui.git"
+  },
+  "author": "Ben Hanna <benpaulhanna@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/benthepoet/firebird-gui/issues"
+  },
+  "homepage": "https://github.com/benthepoet/firebird-gui#readme",
+  "dependencies": {
+    "ws": "^5.2.0"
+  }
+}
