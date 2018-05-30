@@ -14,19 +14,13 @@ wss.on('connection', (ws, req) => {
   
   async function read(message) {
     const { method, params } = deserialize(message);
-    
-    const send = message => {
-      ws.send(serialize(message));
-    };
-    
-    if (!rpc.has(method)) {
-      send('The specified method does not exist.');
-      return;
-    }
-    
+
     try {
-      const response = await rpc.get(method)(params);
-      send(response);
+      if (!rpc.has(method)) {
+        throw new Error('The specified method does not exist.');
+      }
+      
+      send(await rpc.get(method)(params));
     } catch (error) {
       send(error.message);
     }
