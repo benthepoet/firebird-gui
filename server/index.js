@@ -10,19 +10,31 @@ const wss = new WebSocket.Server(serverOptions);
 wss.on('connection', (ws, req) => {
   const wsKey = req.headers['sec-websocket-key'];
   
-  ws.on('message', async ({ method, params }) => {
+  ws.on('message', read);
+  
+  async function read(message) {
+    const { method, params } = deserialize(message);
+    
+    const send = message => {
+      ws.send(serialize(message));
+    };
+    
     if (!rpc.has(method)) {
-      ws.send('The specified method does not exist.');
+      send('The specified method does not exist.');
       return;
     }
     
     try {
       const response = await rpc.get(method)(params);
-      ws.send(response);
+      send(response);
     } catch (error) {
-      ws.send(error.message);
+      send(error.message);
     }
-  });
+  }
+  
+  function send(message) {
+    ws.send(serialize(message));
+  }
 });
 
 wss.on('listening', () => {
@@ -30,3 +42,11 @@ wss.on('listening', () => {
 });
 
 module.exports = wss;
+
+function deserialize(message) {
+  return JSON.parse(message);
+}
+
+function serialize(message) {
+  return JSON.stringify(message);
+}
