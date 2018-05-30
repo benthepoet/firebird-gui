@@ -20,7 +20,7 @@ wss.on('connection', (ws, req) => {
         throw new Error('The specified method does not exist.');
       }
       
-      send(await rpc.get(method)(params));
+      send(await rpc.get(method)(wsKey, params));
     } catch (error) {
       send(error.message);
     }
