@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/benthepoet/firebird-gui#readme",
   "dependencies": {
+    "node-firebird": "^0.8.4",
     "ws": "^5.2.0"
   }
 }

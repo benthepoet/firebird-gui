@@ -1,3 +1,4 @@
+const Firebird = require('node-firebird');
 const state = require('./state');
 
 const ConnectionState = {
@@ -6,37 +7,76 @@ const ConnectionState = {
 };
 
 module.exports = new Map([
+  ['attach-database', attachDatabase],
   ['create-database', createDatabase],
-  ['connect-database', connectDatabase],
   ['detach-database', detachDatabase],
   ['execute-sql', executeSql]
 ]);
 
-async function connectDatabase(wsKey, body) {
+async function attachDatabase(wsKey, params) {
   requireConnectionState(ConnectionState.CLOSED, wsKey);
   
-  state.connections.set(wsKey, Object.create(null));
-  return 'database connected';
+  const connection = await new Promise((resolve, reject) => {
+    Firebird.attach(params, (err, db) => {
+      err ? reject(err) : resolve(db);
+    });
+  });
+  
+  state.connections.set(wsKey, connection);
+  
+  return 'Database connected.';
 }
 
-async function createDatabase(wsKey, body) {
+async function createDatabase(wsKey, params) {
   requireConnectionState(ConnectionState.CLOSED, wsKey);
   
-  state.connections.set(wsKey, Object.create(null));
-  return 'database created';
+  const connection = await new Promise((resolve, reject) => {
+    Firebird.create(params, (err, db) => {
+      err ? reject(err) : resolve(db);
+    });
+  });
+  
+  state.connections.set(wsKey, connection);
+  
+  return 'Database created.';
 }
 
-async function detachDatabase(wsKey, body) {
+async function detachDatabase(wsKey, params) {
   requireConnectionState(ConnectionState.OPEN, wsKey);
   
+  const connection = state.connections.get(wsKey);
+  
+  await new Promise((resolve, reject) => {
+    connection.detach(err => {
+      err ? reject(err) : resolve();
+    });
+  });
+  
   state.connections.delete(wsKey);
+  
   return 'Database connection closed.';
 }
 
-async function executeSql(wsKey, body) {
+async function executeSql(wsKey, params) {
   requireConnectionState(ConnectionState.OPEN, wsKey);
   
-  return 'Database connection ready.';
+  const connection = state.connections.get(wsKey);
+  
+  return await new Promise((resolve, reject) => {
+    connection.execute(params, (err, result) => {
+      err ? reject(err) : resolve(result);
+    });
+  });
+}
+
+function promisify(fn) {
+  return (...args) => {
+    return new Promise((resolve, reject) => {
+      fn(...args, (err, result) => {
+        (err ? reject(err) : resolve(result))
+      });
+    });
+  };
 }
 
 function requireConnectionState(connectionState, wsKey) {
