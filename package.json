@@ -4,7 +4,7 @@
   "description": "A web-based interface for working with Firebird databases.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/benthepoet/firebird-gui#readme",
   "dependencies": {
-    "node-firebird": "^0.8.4",
+    "node-firebird": "^0.8.5",
     "ws": "^5.2.0"
   }
 }
