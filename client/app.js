@@ -1,14 +1,18 @@
-(function () {
+(function (socket) {
     'use strict';
     
-    var socket = Socket();
-    
     var ui = {
-        connectForm: document.querySelect('#connectForm')
+        connectForm: document.querySelector('#connect-form')
     };
     
     ui.connectForm.addEventListener('submit', function (event) {
         event.preventDefault();
-        socket.sendRpcRequest(new Date().getTime(), null, null);
+        socket
+	    .sendRpcRequest({
+		id: new Date().getTime(),
+		method: 'attach-database',
+		params: []
+	    })
+	    .catch(err => console.log(err));
     });
-})();
+})(Socket);

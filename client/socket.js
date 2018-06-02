@@ -7,7 +7,7 @@ var Socket = (function () {
     rpcHandles = new Map();
     
     ws = new WebSocket(SOCKET_URL);
-    ws.on('message', handleRpcResponse);
+    ws.onmessage = handleRpcResponse;
     
     return {
         sendRpcRequest: sendRpcRequest
@@ -17,7 +17,7 @@ var Socket = (function () {
         return JSON.parse(data);
     }
     
-    function handleRpcResponse(data) {
+    function handleRpcResponse({ data }) {
         var message = deserialize(data);
         
         if (message.id !== undefined && message.id !== null) {
@@ -25,8 +25,12 @@ var Socket = (function () {
             if (handle !== undefined) {
                 console.log('RESOLVED', message.id);
                 handle(message);
-            }
-        }
+            } else {
+		console.log('UNRESOLVED', message);
+	    }
+        } else {
+	    console.log('UNRESOLVED', message);
+	}
     }
     
     function sendRpcRequest(message) {
@@ -35,7 +39,7 @@ var Socket = (function () {
             
             rpcHandles.set(message.id, resolve);
             setTimeout(function () {
-                reject();
+                reject(`TIMEOUT ${message.id}`);
             }, RPC_TIMEOUT);
             
             ws.send(data);
