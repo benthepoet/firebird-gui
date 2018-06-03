@@ -2,7 +2,8 @@
     'use strict';
     
     var ui = {
-        connectForm: document.querySelector('#connect-form')
+        connectForm: document.querySelector('#connect-form'),
+	connectionState: document.querySelector('#connection-state')
     };
     
     ui.connectForm.addEventListener('submit', function (event) {
@@ -13,6 +14,9 @@
 		method: 'attach-database',
 		params: []
 	    })
-	    .catch(err => console.log(err));
+	    .catch(err => {
+		var textNode = document.createTextNode('err');
+		ui.connectionState.appendChild(textNode);
+	    });
     });
 })(Socket);

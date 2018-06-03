@@ -24,9 +24,10 @@ var Socket = (function () {
             var handle = rpcHandles.get(message.id);
             if (handle !== undefined) {
                 console.log('RESOLVED', message.id);
-                handle(message);
+                handle.resolve(message);
             } else {
 		console.log('UNRESOLVED', message);
+		handle.reject(message);
 	    }
         } else {
 	    console.log('UNRESOLVED', message);
@@ -37,7 +38,7 @@ var Socket = (function () {
         return new Promise(function (resolve, reject) {
             var data = serialize(message);
             
-            rpcHandles.set(message.id, resolve);
+            rpcHandles.set(message.id, { resolve, reject });
             setTimeout(function () {
                 reject(`TIMEOUT ${message.id}`);
             }, RPC_TIMEOUT);
