@@ -23,7 +23,7 @@ wss.on('connection', (ws, req) => {
       const response = await rpc.get(method)(wsKey, params);
       send({ id, ...response });
     } catch (error) {
-      send(error.message);
+      send({ id, error });
     }
   }
   

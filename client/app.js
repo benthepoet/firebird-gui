@@ -1,22 +1,22 @@
 (function (socket) {
-    'use strict';
+  'use strict';
     
-    var ui = {
-        connectForm: document.querySelector('#connect-form'),
-	connectionState: document.querySelector('#connection-state')
-    };
+  var ui = {
+    connectForm: document.querySelector('#connect-form'),
+    connectionState: document.querySelector('#connection-state')
+  };
     
-    ui.connectForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-        socket
-	    .sendRpcRequest({
-		id: new Date().getTime(),
-		method: 'attach-database',
-		params: []
-	    })
-	    .catch(err => {
-		var textNode = document.createTextNode('err');
-		ui.connectionState.appendChild(textNode);
-	    });
-    });
-})(Socket);
+  ui.connectForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    socket
+      .sendRpcRequest({
+        id: new Date().getTime(),
+        method: 'attach-database',
+        params: []
+      })
+      .catch(error => {
+        var textNode = document.createTextNode(error);
+        ui.connectionState.appendChild(textNode);
+      });
+  });
+})(window.Socket);
