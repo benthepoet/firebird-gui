@@ -18,6 +18,7 @@ async function attachDatabase(wsKey, params) {
   
   const connection = await new Promise((resolve, reject) => {
     Firebird.attach(params, (err, db) => {
+      console.log(err);
       err ? reject(err) : resolve(db);
     });
   });

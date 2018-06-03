@@ -4,6 +4,7 @@
   "description": "A web-based interface for working with Firebird databases.",
   "main": "index.js",
   "scripts": {
+    "serve": "webpack-dev-server",
     "start": "node index.js"
   },
   "repository": {
@@ -18,6 +19,11 @@
   "homepage": "https://github.com/benthepoet/firebird-gui#readme",
   "dependencies": {
     "node-firebird": "^0.8.5",
+    "webpack": "^4.10.2",
+    "webpack-cli": "^3.0.1",
     "ws": "^5.2.0"
+  },
+  "devDependencies": {
+    "webpack-dev-server": "^3.1.4"
   }
 }
