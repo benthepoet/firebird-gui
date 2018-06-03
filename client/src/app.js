@@ -22,7 +22,8 @@ ui.connectForm.addEventListener('submit', function (event) {
       params: params
     })
     .then(result => {
-      console.log(result);
+      var textNode = document.createTextNode(result.code);
+      ui.connectionState.appendChild(textNode);
     })
     .catch(error => {
       console.log(error);
