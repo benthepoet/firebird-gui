@@ -2,7 +2,7 @@ import Debug
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
-import Json.Encode as Encode
+import Rpc
 import WebSocket
 
 
@@ -57,15 +57,6 @@ type alias Model =
     , connectionState : ConnectionState
     , queryResult : QueryResult
     }
-
-
-connectionSettingsEncoder settings =
-    Encode.object
-        [ ("database", Encode.string settings.database)
-        , ("host", Encode.string settings.host)
-        , ("password", Encode.string settings.password)
-        , ("user", Encode.string settings.user)
-        ]
 
 
 updateDatabase : ConnectionSettings -> String -> ConnectionSettings
@@ -128,8 +119,8 @@ update msg model =
             in
                 ( model
                 , WebSocket.send socketServer 
-                    <| Encode.encode 0 
-                    <| connectionSettingsEncoder connectionSettings
+                    <| Rpc.request 
+                    <| Rpc.AttachDatabase connectionSettings
                 )
             
         TypeDatabase database ->
