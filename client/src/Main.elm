@@ -1,8 +1,10 @@
-import Html
+import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
 import WebSocket
 
+
+main : Program Never Model Msg
 main =
     Html.program 
         { init = init
@@ -11,13 +13,17 @@ main =
         , subscriptions = subscriptions
         }
 
+
+socketServer : String
 socketServer =
     "wss://echo.websocket.org"
+
 
 type ConnectionState 
     = Closed 
     | Open 
     | Pending
+
 
 type Msg 
     = ConnectionOpen 
@@ -30,24 +36,48 @@ type Msg
     | TypePassword String
     | TypeUser String
 
+
 type QueryResult 
     = EmptySet 
     | RowSet List String 
 
+
 type alias ConnectionSettings =
-    { host : String
-    , database : String
-    , user : String
+    { database : String
+    , host : String
     , password : String
+    , user : String
     }
+
 
 type alias Model =
     { connectionSettings : ConnectionSettings
     , connectionState : ConnectionState
     , queryResult : QueryResult
     }
-    
 
+
+updateDatabase : ConnectionSettings -> String -> ConnectionSettings
+updateDatabase settings database =
+    { settings | database = database }
+
+
+updateHost : ConnectionSettings -> String -> ConnectionSettings
+updateHost settings host =
+    { settings | host = host }
+
+
+updatePassword : ConnectionSettings -> String -> ConnectionSettings    
+updatePassword settings password =
+    { settings | password = password }
+
+    
+updateUser : ConnectionSettings -> String -> ConnectionSettings
+updateUser settings user =
+    { settings | user = user }
+
+
+init : ( Model, Cmd Msg )
 init =
     let
         connectionSettings = ConnectionSettings "" "" "" ""
@@ -56,6 +86,8 @@ init =
         , Cmd.none
         )
     
+    
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ConnectionOpen ->
@@ -80,25 +112,39 @@ update msg model =
             ( model, Cmd.none )
             
         TypeDatabase database ->
-            ( model
-            , Cmd.none
-            )
+            let
+                connectionSettings = updateDatabase model.connectionSettings database
+            in
+                ( { model | connectionSettings = connectionSettings } 
+                , Cmd.none
+                )
             
         TypeHost host ->
-            ( model
-            , Cmd.none
-            )
+            let
+                connectionSettings = updateHost model.connectionSettings host
+            in
+                ( { model | connectionSettings = connectionSettings } 
+                , Cmd.none
+                )
             
         TypePassword password ->
-            ( model
-            , Cmd.none
-            )
+            let
+                connectionSettings = updatePassword model.connectionSettings password
+            in
+                ( { model | connectionSettings = connectionSettings } 
+                , Cmd.none
+                )
             
         TypeUser user ->
-            ( model
-            , Cmd.none
-            )
+            let
+                connectionSettings = updateUser model.connectionSettings user
+            in
+                ( { model | connectionSettings = connectionSettings } 
+                , Cmd.none
+                )
 
+
+view : Model -> Html Msg
 view model =
     Html.div [ Attributes.class "pure-g" ]
         [ Html.div [ Attributes.class "pure-u-1-3" ] []
@@ -108,10 +154,10 @@ view model =
                 , Events.onSubmit SubmitConnect
                 ]
                 [ Html.fieldset [ Attributes.class "pure-group" ] 
-                    [ Html.input [ Attributes.type_ "text" ] []
-                    , Html.input [ Attributes.type_ "text" ] []
-                    , Html.input [ Attributes.type_ "text" ] []
-                    , Html.input [ Attributes.type_ "text" ] []
+                    [ textInput "Host" model.connectionSettings.host TypeHost
+                    , textInput "Database" model.connectionSettings.database TypeDatabase
+                    , textInput "User" model.connectionSettings.user TypeUser
+                    , passwordInput "Password" model.connectionSettings.password TypePassword
                     ]
                 , Html.button 
                     [ Attributes.class "pure-button pure-button-primary" ] 
@@ -120,6 +166,28 @@ view model =
             ]
         , Html.div [ Attributes.class "pure-u-1-3" ] []
         ]
-            
+           
+
+subscriptions : Model -> Sub Msg
 subscriptions model =
     WebSocket.listen socketServer SocketMessage
+
+
+formInput : String -> String -> String -> (String -> Msg) -> Html Msg
+formInput type_ placeholder value msg =
+    Html.input 
+        [ Attributes.placeholder placeholder
+        , Attributes.type_ type_
+        , Attributes.value value
+        , Events.onInput msg
+        ] []
+
+
+passwordInput : String -> String -> (String -> Msg) -> Html Msg
+passwordInput =
+    formInput "password"
+    
+
+textInput : String -> String -> (String -> Msg) -> Html.Html Msg
+textInput =
+    formInput "text"
