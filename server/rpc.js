@@ -1,11 +1,10 @@
 const Firebird = require('node-firebird');
 const state = require('./state');
 
-const Codes = {
-  DATABASE_ATTACHED: 'DATABASE_ATTACHED',
-  DATABASE_CREATED: 'DATABASE_CREATED',
-  DATABASE_DETACHED: 'DATABASE_DETACHED',
-  QUERY_EXECUTED: 'QUERY_EXECUTED'
+const ResponseCode = {
+  CONNECTION_CLOSED: 'CONNECTION_CLOSED',
+  CONNECTION_OPEN: 'CONNECTION_OPEN',
+  QUERY_RESULT: 'QUERY_RESULT'
 };
 
 const ConnectionState = {
@@ -33,7 +32,7 @@ async function attachDatabase(wsKey, params) {
   state.connections.set(wsKey, connection);
   
   return {
-    code: Codes.DATABASE_ATTACHED
+    code: ResponseCode.CONNECTION_OPEN
   };
 }
 
@@ -49,7 +48,7 @@ async function createDatabase(wsKey, params) {
   state.connections.set(wsKey, connection);
   
   return {
-    code: Codes.DATABASE_CREATED
+    code: ResponseCode.CONNECTION_OPEN
   };
 }
 
@@ -67,7 +66,7 @@ async function detachDatabase(wsKey, params) {
   state.connections.delete(wsKey);
   
   return {
-    code: Codes.DATABASE_DETACHED
+    code: ResponseCode.CONNECTION_CLOSED
   };
 }
 
@@ -82,17 +81,10 @@ async function executeSql(wsKey, params) {
     });
   });
 
-
-}
-
-function promisify(fn) {
-  return (...args) => {
-    return new Promise((resolve, reject) => {
-      fn(...args, (err, result) => {
-        (err ? reject(err) : resolve(result))
-      });
-    });
-  };
+  return {
+    code: ResponseCode.QUERY_RESULT,
+    data
+  }
 }
 
 function requireConnectionState(connectionState, wsKey) {
