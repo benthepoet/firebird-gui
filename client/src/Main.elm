@@ -1,4 +1,6 @@
 import Html
+import Html.Attributes as Attributes
+import Html.Events as Events
 import WebSocket
 
 main =
@@ -22,6 +24,11 @@ type Msg
     | ConnectionClosed 
     | Query QueryResult
     | SocketMessage String
+    | SubmitConnect
+    | TypeDatabase String
+    | TypeHost String
+    | TypePassword String
+    | TypeUser String
 
 type QueryResult 
     = EmptySet 
@@ -69,18 +76,49 @@ update msg =
         SocketMessage message ->
             ( model, Cmd.none )
             
+        SubmitConnect ->
+            ( model, Cmd.none )
+            
+        TypeDatabase database ->
+            ( { model | database = database }
+            , Cmd.none
+            )
+            
+        TypeHost host ->
+            ( { model | host = host }
+            , Cmd.none
+            )
+            
+        TypePassword password ->
+            ( { model | password = password }
+            , Cmd.none
+            )
+            
+        TypeUser user ->
+            ( { model | user = user }
+            , Cmd.none
+            )
+
 view model =
-    Html.div [] 
-        [ Html.form 
-            [ Html.class "pure-form pure-form-stacked"
-            ]
-            [ Html.fieldset [ Html.class "pure-group" ] 
-                [ Html.input [] []
-                , Html.input [] []
-                , Html.input [] []
-                , Html.input [] []
+    Html.div [ Attributes.class "pure-g" ]
+        [ Html.div [ Attributes.class "pure-u-1-3" ] []
+        , Html.div [ Attributes.class "pure-u-1-3" ] 
+            [ Html.form 
+                [ Attributes.class "pure-form pure-form-stacked" 
+                , Events.onSubmit SubmitConnect
+                ]
+                [ Html.fieldset [ Attributes.class "pure-group" ] 
+                    [ Html.input [ Attributes.type_ "text" ] []
+                    , Html.input [ Attributes.type_ "text" ] []
+                    , Html.input [ Attributes.type_ "text" ] []
+                    , Html.input [ Attributes.type_ "text" ] []
+                    ]
+                , Html.button 
+                    [ Attributes.class "pure-button pure-button-primary" ] 
+                    [ Attributes.text "Connect" ]
                 ]
             ]
+        , Html.div [ Attributes.class "pure-u-1-3" ] []
         ]
             
 subscriptions model =

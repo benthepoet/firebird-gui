@@ -4,7 +4,7 @@ const PUBLIC_PATH = resolve(__dirname, 'client/public');
 const SRC_PATH = resolve(__dirname, 'client/src');
 
 module.exports = {
-  entry: `${SRC_PATH}/app.js`,
+  entry: `${SRC_PATH}/index.js`,
   output: {
     filename: 'bundle.js',
     path: PUBLIC_PATH
@@ -12,9 +12,13 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(js)$/,
-        exclude: /node_modules/
-      }
+        test: /\.elm$/,
+        exclude: [/elm-stuff/, /node_modules/],
+        use: {
+          loader: 'elm-webpack-loader',
+          options: {}
+        }
+      },
     ]
   },
   devServer: {
