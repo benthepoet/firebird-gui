@@ -22,6 +22,7 @@ module.exports = {
     ]
   },
   devServer: {
-    contentBase: PUBLIC_PATH
+    contentBase: PUBLIC_PATH,
+    disableHostCheck: true
   }
 };
