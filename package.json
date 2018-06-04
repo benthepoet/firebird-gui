@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/benthepoet/firebird-gui#readme",
   "dependencies": {
+    "elm": "^0.18.0",
+    "elm-webpack-loader": "^4.5.0",
     "node-firebird": "^0.8.5",
     "webpack": "^4.10.2",
     "webpack-cli": "^3.0.1",

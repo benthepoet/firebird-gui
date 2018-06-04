@@ -52,11 +52,11 @@ init =
     let
         connectionSettings = ConnectionSettings "" "" "" ""
     in
-        ( Model connectionSettings Pending EmptySEt
+        ( Model connectionSettings Pending EmptySet
         , Cmd.none
         )
     
-update msg =
+update msg model =
     case msg of
         ConnectionOpen ->
             ( { model | connectionState = Open }
@@ -80,22 +80,22 @@ update msg =
             ( model, Cmd.none )
             
         TypeDatabase database ->
-            ( { model | database = database }
+            ( model
             , Cmd.none
             )
             
         TypeHost host ->
-            ( { model | host = host }
+            ( model
             , Cmd.none
             )
             
         TypePassword password ->
-            ( { model | password = password }
+            ( model
             , Cmd.none
             )
             
         TypeUser user ->
-            ( { model | user = user }
+            ( model
             , Cmd.none
             )
 
@@ -115,7 +115,7 @@ view model =
                     ]
                 , Html.button 
                     [ Attributes.class "pure-button pure-button-primary" ] 
-                    [ Attributes.text "Connect" ]
+                    [ Html.text "Connect" ]
                 ]
             ]
         , Html.div [ Attributes.class "pure-u-1-3" ] []
