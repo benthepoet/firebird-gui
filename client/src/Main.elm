@@ -1,6 +1,8 @@
+import Debug
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
+import Json.Encode as Encode
 import WebSocket
 
 
@@ -57,6 +59,15 @@ type alias Model =
     }
 
 
+connectionSettingsEncoder settings =
+    Encode.object
+        [ ("database", Encode.string settings.database)
+        , ("host", Encode.string settings.host)
+        , ("password", Encode.string settings.password)
+        , ("user", Encode.string settings.user)
+        ]
+
+
 updateDatabase : ConnectionSettings -> String -> ConnectionSettings
 updateDatabase settings database =
     { settings | database = database }
@@ -106,14 +117,25 @@ update msg model =
             )
             
         SocketMessage message ->
-            ( model, Cmd.none )
+            let
+                debug = Debug.log "Socket Message" message
+            in
+                ( model, Cmd.none )
             
         SubmitConnect ->
-            ( model, Cmd.none )
+            let
+                { connectionSettings } = model
+            in
+                ( model
+                , WebSocket.send socketServer 
+                    <| Encode.encode 0 
+                    <| connectionSettingsEncoder connectionSettings
+                )
             
         TypeDatabase database ->
             let
-                connectionSettings = updateDatabase model.connectionSettings database
+                connectionSettings = 
+                    updateDatabase model.connectionSettings database
             in
                 ( { model | connectionSettings = connectionSettings } 
                 , Cmd.none
@@ -121,7 +143,8 @@ update msg model =
             
         TypeHost host ->
             let
-                connectionSettings = updateHost model.connectionSettings host
+                connectionSettings = 
+                    updateHost model.connectionSettings host
             in
                 ( { model | connectionSettings = connectionSettings } 
                 , Cmd.none
@@ -129,7 +152,8 @@ update msg model =
             
         TypePassword password ->
             let
-                connectionSettings = updatePassword model.connectionSettings password
+                connectionSettings = 
+                    updatePassword model.connectionSettings password
             in
                 ( { model | connectionSettings = connectionSettings } 
                 , Cmd.none
@@ -137,7 +161,8 @@ update msg model =
             
         TypeUser user ->
             let
-                connectionSettings = updateUser model.connectionSettings user
+                connectionSettings = 
+                    updateUser model.connectionSettings user
             in
                 ( { model | connectionSettings = connectionSettings } 
                 , Cmd.none
@@ -160,7 +185,9 @@ view model =
                     , passwordInput "Password" model.connectionSettings.password TypePassword
                     ]
                 , Html.button 
-                    [ Attributes.class "pure-button pure-button-primary" ] 
+                    [ Attributes.class "pure-button pure-button-primary" 
+                    , Attributes.type_ "submit"
+                    ] 
                     [ Html.text "Connect" ]
                 ]
             ]
