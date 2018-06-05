@@ -85,9 +85,12 @@ update msg model =
             )
             
         Msg.RpcError error ->
-            ( model
-            , Cmd.none
-            )
+            let
+                e = Debug.log "error" error
+            in
+                ( model
+                , Cmd.none
+                )
             
         Msg.SubmitConnect ->
             let
@@ -161,16 +164,17 @@ view model =
 
 
 viewConnected model =
-    [ Html.div []
+    [ Html.div [ Attributes.class "pure-u-1" ]
         [ Html.form 
             [ Attributes.class "pure-form"
             , Events.onSubmit Msg.SubmitQuery
             ]
             [ Html.fieldset [ Attributes.class "pure-group" ]
-                [ Html.textarea [] [] 
+                [ Html.textarea 
+                    [ Attributes.class "pure-u-1-1" ] [] 
                 ]
             , Html.button
-                [ Attributes.class "pure-button pure-button-primary"
+                [ Attributes.class "pure-button pure-button-primary button-error mr-1"
                 , Attributes.type_ "button"
                 , Events.onClick Msg.SubmitDisconnect
                 ]
