@@ -85,7 +85,7 @@ async function executeSql(wsKey, { sql }) {
     if (data === undefined || data === null) {
       data = [];
     } else if (!Array.isArray(data)) {
-      data = [data];
+      data = [[data]];
     }
     
     const toString = value => String(value);

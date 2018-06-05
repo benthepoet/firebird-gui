@@ -109,7 +109,7 @@ update msg model =
             )
             
         Msg.SubmitQuery ->
-            ( model
+            ( { model | queryResult = [] }
             , WebSocket.send socketServer
                 <| Rpc.request 
                 <| Rpc.ExecuteSql model.query
