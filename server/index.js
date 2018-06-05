@@ -22,7 +22,12 @@ wss.on('connection', (ws, req) => {
       
       const result = await rpc.get(method)(wsKey, params);
       send({ id, result });
-    } catch (error) {
+    } catch ({ message }) {
+      const error = { 
+        code: -32603,
+        message 
+      };
+      
       send({ id, error });
     }
   }

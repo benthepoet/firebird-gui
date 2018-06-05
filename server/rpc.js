@@ -75,16 +75,27 @@ async function executeSql(wsKey, { sql }) {
   
   const connection = state.connections.get(wsKey);
   
-  const data = await new Promise((resolve, reject) => {
+  const result = await new Promise((resolve, reject) => {
     connection.execute(sql, (err, result) => {
       err ? reject(err) : resolve(result);
     });
   });
 
+  const pipeline = data => {
+    if (data === undefined || data === null) {
+      data = [];
+    } else if (!Array.isArray(data)) {
+      data = [data];
+    }
+    
+    const toString = value => String(value);
+    return data.map(row => row.map(toString));
+  }
+
   return {
     code: ResultCode.QUERY_RESULT,
-    data
-  }
+    data: pipeline(result)
+  };
 }
 
 function requireConnectionState(connectionState, wsKey) {
