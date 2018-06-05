@@ -23,6 +23,12 @@ module.exports = {
   },
   devServer: {
     contentBase: PUBLIC_PATH,
-    disableHostCheck: true
+    disableHostCheck: true,
+    proxy: {
+      '/ws': {
+         target: 'ws://localhost:8920',
+         ws: true
+      }
+    }
   }
 };

@@ -3,13 +3,14 @@ import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Msg exposing (Msg)
+import Regex
 import Rpc
 import WebSocket
 
 
-main : Program Never Model Msg
+main : Program Flags Model Msg
 main =
-    Html.program 
+    Html.programWithFlags
         { init = init
         , update = update
         , view = view
@@ -17,14 +18,15 @@ main =
         }
 
 
-socketServer : String
-socketServer =
-    "ws://localhost:8920"
-
-
 type ConnectionState 
     = Closed 
     | Open
+
+
+type alias Flags = 
+    { hostname : String 
+    , protocol: String
+    }
 
 
 type alias Model =
@@ -32,6 +34,7 @@ type alias Model =
     , connectionState : ConnectionState
     , query : Rpc.Query
     , queryResult : List (List String)
+    , socketServer : String
     }
 
 
@@ -55,13 +58,21 @@ updateUser settings user =
     { settings | user = user }
 
 
-init : ( Model, Cmd Msg )
-init =
+socketProtocol : String -> String
+socketProtocol = 
+    Regex.replace Regex.All (Regex.regex "http") (\_ -> "ws") 
+
+
+init : Flags -> ( Model, Cmd Msg )
+init { hostname, protocol } =
     let
         connectionSettings = Rpc.ConnectionSettings "" "" "" ""
         query = Rpc.Query ""
+        socketServer = 
+            "//" ++ hostname ++ "/ws" 
+                |> (++) (socketProtocol protocol)
     in
-        ( Model connectionSettings Closed query []
+        ( Model connectionSettings Closed query [] socketServer
         , Cmd.none
         )
     
@@ -97,20 +108,20 @@ update msg model =
                 { connectionSettings } = model
             in
                 ( model
-                , WebSocket.send socketServer 
+                , WebSocket.send model.socketServer 
                     <| Rpc.request 
                     <| Rpc.AttachDatabase connectionSettings
                 )
                 
         Msg.SubmitDisconnect ->
             ( model
-            , WebSocket.send socketServer
+            , WebSocket.send model.socketServer
                 <| Rpc.request Rpc.DetachDatabase
             )
             
         Msg.SubmitQuery ->
             ( { model | queryResult = [] }
-            , WebSocket.send socketServer
+            , WebSocket.send model.socketServer
                 <| Rpc.request 
                 <| Rpc.ExecuteSql model.query
             )
@@ -235,7 +246,7 @@ viewQueryResultRow =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    WebSocket.listen socketServer Rpc.decodeMessage
+    WebSocket.listen model.socketServer Rpc.decodeMessage
 
 
 formInput : String -> String -> String -> (String -> Msg) -> Html Msg
