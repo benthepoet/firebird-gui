@@ -193,6 +193,10 @@ viewConnected model =
                 ]
                 [ Html.text "Execute" ]
             ]
+        , Html.table [ Attributes.class "pure-table pure-table-striped" ]
+            [ Html.tbody []
+                <| viewQueryResult model.queryResult
+            ]
         ]
     ]
 
@@ -219,6 +223,14 @@ viewDisconnected model =
         ]
     , Html.div [ Attributes.class "pure-u-1-3" ] []
     ]
+
+
+viewQueryResult =
+    List.map (\row -> Html.tr [] <| viewQueryResultRow row)
+
+
+viewQueryResultRow =
+    List.map (\value -> Html.td [] [ Html.text value ])
 
 
 subscriptions : Model -> Sub Msg
