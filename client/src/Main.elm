@@ -172,7 +172,7 @@ view model =
         <| (::) (viewErrors model.errors)
         <| case model.connectionState of
             Closed ->
-                viewDisconnected model
+                viewDisconnected model.connectionSettings
             
             Open ->
                 viewConnected model
@@ -211,7 +211,7 @@ viewConnected model =
     ]
 
 
-viewDisconnected model =
+viewDisconnected connectionSettings =
     [ Html.div [ Attributes.class "pure-u-1-3" ] []
     , Html.div [ Attributes.class "pure-u-1-3" ] 
         [ Html.form 
@@ -219,10 +219,10 @@ viewDisconnected model =
             , Events.onSubmit Msg.SubmitConnect
             ]
             [ Html.fieldset [ Attributes.class "pure-group" ] 
-                [ textInput "Host" model.connectionSettings.host Msg.TypeHost
-                , textInput "Database" model.connectionSettings.database Msg.TypeDatabase
-                , textInput "User" model.connectionSettings.user Msg.TypeUser
-                , passwordInput "Password" model.connectionSettings.password Msg.TypePassword
+                [ textInput "Host" connectionSettings.host Msg.TypeHost
+                , textInput "Database" connectionSettings.database Msg.TypeDatabase
+                , textInput "User" connectionSettings.user Msg.TypeUser
+                , passwordInput "Password" connectionSettings.password Msg.TypePassword
                 ]
             , Html.button 
                 [ Attributes.class "pure-button pure-button-primary" 
