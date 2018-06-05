@@ -152,28 +152,62 @@ update msg model =
 view : Model -> Html Msg
 view model =
     Html.div [ Attributes.class "pure-g" ]
-        [ Html.div [ Attributes.class "pure-u-1-3" ] []
-        , Html.div [ Attributes.class "pure-u-1-3" ] 
-            [ Html.form 
-                [ Attributes.class "pure-form pure-form-stacked" 
-                , Events.onSubmit Msg.SubmitConnect
-                ]
-                [ Html.fieldset [ Attributes.class "pure-group" ] 
-                    [ textInput "Host" model.connectionSettings.host Msg.TypeHost
-                    , textInput "Database" model.connectionSettings.database Msg.TypeDatabase
-                    , textInput "User" model.connectionSettings.user Msg.TypeUser
-                    , passwordInput "Password" model.connectionSettings.password Msg.TypePassword
-                    ]
-                , Html.button 
-                    [ Attributes.class "pure-button pure-button-primary" 
-                    , Attributes.type_ "submit"
-                    ] 
-                    [ Html.text "Connect" ]
-                ]
+        <| case model.connectionState of
+            Closed ->
+                viewDisconnected model
+            
+            Open ->
+                viewConnected model
+
+
+viewConnected model =
+    [ Html.div []
+        [ Html.form 
+            [ Attributes.class "pure-form"
+            , Events.onSubmit Msg.SubmitQuery
             ]
-        , Html.div [ Attributes.class "pure-u-1-3" ] []
+            [ Html.fieldset [ Attributes.class "pure-group" ]
+                [ Html.textarea [] [] 
+                ]
+            , Html.button
+                [ Attributes.class "pure-button pure-button-primary"
+                , Attributes.type_ "button"
+                , Events.onClick Msg.SubmitDisconnect
+                ]
+                [ Html.text "Disconnect" ]
+            , Html.button 
+                [ Attributes.class "pure-button pure-button-primary"
+                , Attributes.type_ "submit"
+                ]
+                [ Html.text "Execute" ]
+            ]
         ]
-           
+    ]
+
+
+viewDisconnected model =
+    [ Html.div [ Attributes.class "pure-u-1-3" ] []
+    , Html.div [ Attributes.class "pure-u-1-3" ] 
+        [ Html.form 
+            [ Attributes.class "pure-form pure-form-stacked" 
+            , Events.onSubmit Msg.SubmitConnect
+            ]
+            [ Html.fieldset [ Attributes.class "pure-group" ] 
+                [ textInput "Host" model.connectionSettings.host Msg.TypeHost
+                , textInput "Database" model.connectionSettings.database Msg.TypeDatabase
+                , textInput "User" model.connectionSettings.user Msg.TypeUser
+                , passwordInput "Password" model.connectionSettings.password Msg.TypePassword
+                ]
+            , Html.button 
+                [ Attributes.class "pure-button pure-button-primary" 
+                , Attributes.type_ "submit"
+                ] 
+                [ Html.text "Connect" ]
+            ]
+        ]
+    , Html.div [ Attributes.class "pure-u-1-3" ] []
+    ]
+
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
