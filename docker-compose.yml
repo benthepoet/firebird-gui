@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  firebird:
+    image: jacobalberty/firebird:2.5-sc
+    restart: always
+    ports:
+    - 3050:3050
