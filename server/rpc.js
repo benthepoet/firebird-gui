@@ -1,10 +1,10 @@
 const Firebird = require('node-firebird');
 const state = require('./state');
 
-const ResponseCode = {
-  CONNECTION_CLOSED: 'CONNECTION_CLOSED',
-  CONNECTION_OPEN: 'CONNECTION_OPEN',
-  QUERY_RESULT: 'QUERY_RESULT'
+const ResultCode = {
+  CONNECTED: 0,
+  DISCONNECTED: 1,
+  QUERY_RESULT: 2
 };
 
 const ConnectionState = {
@@ -32,7 +32,7 @@ async function attachDatabase(wsKey, params) {
   state.connections.set(wsKey, connection);
   
   return {
-    code: ResponseCode.CONNECTION_OPEN
+    code: ResultCode.CONNECTED
   };
 }
 
@@ -48,7 +48,7 @@ async function createDatabase(wsKey, params) {
   state.connections.set(wsKey, connection);
   
   return {
-    code: ResponseCode.CONNECTION_OPEN
+    code: ResultCode.CONNECTED
   };
 }
 
@@ -66,7 +66,7 @@ async function detachDatabase(wsKey, params) {
   state.connections.delete(wsKey);
   
   return {
-    code: ResponseCode.CONNECTION_CLOSED
+    code: ResultCode.DISCONNECTED
   };
 }
 
@@ -82,7 +82,7 @@ async function executeSql(wsKey, params) {
   });
 
   return {
-    code: ResponseCode.QUERY_RESULT,
+    code: ResultCode.QUERY_RESULT,
     data
   }
 }
