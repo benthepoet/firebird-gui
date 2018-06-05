@@ -30,6 +30,7 @@ type ConnectionState
 type alias Model =
     { connectionSettings : Rpc.ConnectionSettings
     , connectionState : ConnectionState
+    , query : Rpc.Query
     , queryResult : List (List String)
     }
 
@@ -58,8 +59,9 @@ init : ( Model, Cmd Msg )
 init =
     let
         connectionSettings = Rpc.ConnectionSettings "" "" "" ""
+        query = Rpc.Query ""
     in
-        ( Model connectionSettings Closed []
+        ( Model connectionSettings Closed query []
         , Cmd.none
         )
     
@@ -96,6 +98,19 @@ update msg model =
                     <| Rpc.request 
                     <| Rpc.AttachDatabase connectionSettings
                 )
+                
+        Msg.SubmitDisconnect ->
+            ( model
+            , WebSocket.send socketServer
+                <| Rpc.request Rpc.DetachDatabase
+            )
+            
+        Msg.SubmitQuery ->
+            ( model
+            , WebSocket.send socketServer
+                <| Rpc.request 
+                <| Rpc.ExecuteSql model.query
+            )
             
         Msg.TypeDatabase database ->
             let

@@ -13,8 +13,15 @@ type alias ConnectionSettings =
     }
 
 
+type alias Query =
+    { sql : String
+    }
+
+
 type Method 
     = AttachDatabase ConnectionSettings
+    | DetachDatabase
+    | ExecuteSql Query
 
 
 request : Method -> String
@@ -29,6 +36,11 @@ connectionSettingsEncoder settings =
         , ("password", Encode.string settings.password)
         , ("user", Encode.string settings.user)
         ]
+
+
+queryEncoder query =
+    Encode.object
+        [ ("sql", Encode.string query.sql) ]
 
 
 decodeMessage message =
@@ -71,5 +83,13 @@ requestEncoder method =
             AttachDatabase settings ->
                 [ ("method", Encode.string "attach-database")
                 , ("params", connectionSettingsEncoder settings)
+                ]
+                
+            DetachDatabase ->
+                [ ("method", Encode.string "detach-database") ]
+                
+            ExecuteSql query ->
+                [ ("method", Encode.string "execute-sql")
+                , ("params", queryEncoder query)
                 ]
         )

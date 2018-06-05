@@ -70,13 +70,13 @@ async function detachDatabase(wsKey, params) {
   };
 }
 
-async function executeSql(wsKey, params) {
+async function executeSql(wsKey, { sql }) {
   requireConnectionState(ConnectionState.OPEN, wsKey);
   
   const connection = state.connections.get(wsKey);
   
   const data = await new Promise((resolve, reject) => {
-    connection.execute(params, (err, result) => {
+    connection.execute(sql, (err, result) => {
       err ? reject(err) : resolve(result);
     });
   });
