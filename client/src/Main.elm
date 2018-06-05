@@ -44,37 +44,29 @@ type QueryResult
     | RowSet List String 
 
 
-type alias ConnectionSettings =
-    { database : String
-    , host : String
-    , password : String
-    , user : String
-    }
-
-
 type alias Model =
-    { connectionSettings : ConnectionSettings
+    { connectionSettings : Rpc.ConnectionSettings
     , connectionState : ConnectionState
     , queryResult : QueryResult
     }
 
 
-updateDatabase : ConnectionSettings -> String -> ConnectionSettings
+updateDatabase : Rpc.ConnectionSettings -> String -> Rpc.ConnectionSettings
 updateDatabase settings database =
     { settings | database = database }
 
 
-updateHost : ConnectionSettings -> String -> ConnectionSettings
+updateHost : Rpc.ConnectionSettings -> String -> Rpc.ConnectionSettings
 updateHost settings host =
     { settings | host = host }
 
 
-updatePassword : ConnectionSettings -> String -> ConnectionSettings    
+updatePassword : Rpc.ConnectionSettings -> String -> Rpc.ConnectionSettings    
 updatePassword settings password =
     { settings | password = password }
 
     
-updateUser : ConnectionSettings -> String -> ConnectionSettings
+updateUser : Rpc.ConnectionSettings -> String -> Rpc.ConnectionSettings
 updateUser settings user =
     { settings | user = user }
 
@@ -82,7 +74,7 @@ updateUser settings user =
 init : ( Model, Cmd Msg )
 init =
     let
-        connectionSettings = ConnectionSettings "" "" "" ""
+        connectionSettings = Rpc.ConnectionSettings "" "" "" ""
     in
         ( Model connectionSettings Pending EmptySet
         , Cmd.none
