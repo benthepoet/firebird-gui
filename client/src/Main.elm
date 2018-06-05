@@ -19,7 +19,7 @@ main =
 
 socketServer : String
 socketServer =
-    "wss://echo.websocket.org"
+    "ws://localhost:8920"
 
 
 type ConnectionState 
@@ -141,6 +141,11 @@ update msg model =
                 ( { model | connectionSettings = connectionSettings } 
                 , Cmd.none
                 )
+                
+        Msg.TypeQuery sql ->
+            ( { model | query = Rpc.Query sql }
+            , Cmd.none
+            )
             
         Msg.TypeUser user ->
             let
@@ -171,7 +176,9 @@ viewConnected model =
             ]
             [ Html.fieldset [ Attributes.class "pure-group" ]
                 [ Html.textarea 
-                    [ Attributes.class "pure-u-1-1" ] [] 
+                    [ Attributes.class "pure-u-1-1" 
+                    , Events.onInput Msg.TypeQuery
+                    ] [] 
                 ]
             , Html.button
                 [ Attributes.class "pure-button pure-button-primary button-error mr-1"

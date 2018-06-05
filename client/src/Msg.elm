@@ -11,4 +11,5 @@ type Msg
     | TypeDatabase String
     | TypeHost String
     | TypePassword String
+    | TypeQuery String
     | TypeUser String

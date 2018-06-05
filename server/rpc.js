@@ -23,7 +23,7 @@ async function attachDatabase(wsKey, params) {
   requireConnectionState(ConnectionState.CLOSED, wsKey);
   
   const connection = await new Promise((resolve, reject) => {
-    Firebird.attach(params, (err, db) => {
+    Firebird.attachOrCreate(params, (err, db) => {
       console.log(err);
       err ? reject(err) : resolve(db);
     });
