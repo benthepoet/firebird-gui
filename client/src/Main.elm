@@ -32,6 +32,7 @@ type alias Flags =
 type alias Model =
     { connectionSettings : Rpc.ConnectionSettings
     , connectionState : ConnectionState
+    , errors : List String
     , query : Rpc.Query
     , queryResult : List (List String)
     , socketServer : String
@@ -72,7 +73,7 @@ init { hostname, protocol } =
             "//" ++ hostname ++ "/ws" 
                 |> (++) (socketProtocol protocol)
     in
-        ( Model connectionSettings Closed query [] socketServer
+        ( Model connectionSettings Closed [] query [] socketServer
         , Cmd.none
         )
     
@@ -96,13 +97,10 @@ update msg model =
             )
             
         Msg.RpcError error ->
-            let
-                e = Debug.log "error" error
-            in
-                ( model
-                , Cmd.none
-                )
-            
+            ( { model | errors = Debug.log "error" [error] }
+            , Cmd.none
+            )
+        
         Msg.SubmitConnect ->
             let
                 { connectionSettings } = model
@@ -171,6 +169,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     Html.div [ Attributes.class "pure-g" ]
+        <| (::) (viewErrors model.errors)
         <| case model.connectionState of
             Closed ->
                 viewDisconnected model
@@ -234,6 +233,20 @@ viewDisconnected model =
         ]
     , Html.div [ Attributes.class "pure-u-1-3" ] []
     ]
+
+
+viewError error =
+    Html.h6 [] [ Html.text error ]
+
+
+viewErrors errors =
+    Html.div [ Attributes.class "pure-u-1" ]
+        <| case List.isEmpty errors of
+            True ->
+                []
+                
+            False ->
+                List.map viewError errors
 
 
 viewQueryResult =

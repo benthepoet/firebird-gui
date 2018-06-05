@@ -45,7 +45,8 @@ queryEncoder query =
 
 decodeMessage message =
     let
-        result = Decode.decodeString responseDecoder message
+        result = 
+            Decode.decodeString (Decode.oneOf [errorDecoder, responseDecoder]) message
     in 
         case result of
             Ok msg ->
@@ -53,6 +54,12 @@ decodeMessage message =
                 
             Err error ->
                 Msg.RpcError error
+
+
+errorDecoder =
+    Decode.field "error"
+        <| Decode.map Msg.RpcError
+        <| Decode.field "message" Decode.string
 
 
 responseDecoder =
