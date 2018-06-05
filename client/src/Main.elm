@@ -178,7 +178,8 @@ viewConnected model =
                 [ Html.textarea 
                     [ Attributes.class "pure-u-1-1" 
                     , Events.onInput Msg.TypeQuery
-                    ] [] 
+                    ] 
+                    [ Html.text model.query.sql ] 
                 ]
             , Html.button
                 [ Attributes.class "pure-button pure-button-primary button-error mr-1"
