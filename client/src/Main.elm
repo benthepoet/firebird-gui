@@ -2,6 +2,7 @@ import Debug
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
+import Msg exposing (Msg)
 import Rpc
 import WebSocket
 
@@ -23,31 +24,13 @@ socketServer =
 
 type ConnectionState 
     = Closed 
-    | Open 
-    | Pending
-
-
-type Msg 
-    = ConnectionOpen 
-    | ConnectionClosed 
-    | Query QueryResult
-    | SocketMessage String
-    | SubmitConnect
-    | TypeDatabase String
-    | TypeHost String
-    | TypePassword String
-    | TypeUser String
-
-
-type QueryResult 
-    = EmptySet 
-    | RowSet List String 
+    | Open
 
 
 type alias Model =
     { connectionSettings : Rpc.ConnectionSettings
     , connectionState : ConnectionState
-    , queryResult : QueryResult
+    , queryResult : List (List String)
     }
 
 
@@ -76,7 +59,7 @@ init =
     let
         connectionSettings = Rpc.ConnectionSettings "" "" "" ""
     in
-        ( Model connectionSettings Pending EmptySet
+        ( Model connectionSettings Closed []
         , Cmd.none
         )
     
@@ -84,28 +67,27 @@ init =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ConnectionOpen ->
+        Msg.Connected ->
             ( { model | connectionState = Open }
             , Cmd.none 
             )
             
-        ConnectionClosed ->
+        Msg.Disconnected ->
             ( { model | connectionState = Closed }
             , Cmd.none
             )
             
-        Query queryResult ->
+        Msg.QueryResult queryResult ->
             ( { model | queryResult = queryResult }
             , Cmd.none
             )
             
-        SocketMessage message ->
-            let
-                debug = Debug.log "Socket Message" message
-            in
-                ( model, Cmd.none )
+        Msg.RpcError error ->
+            ( model
+            , Cmd.none
+            )
             
-        SubmitConnect ->
+        Msg.SubmitConnect ->
             let
                 { connectionSettings } = model
             in
@@ -115,7 +97,7 @@ update msg model =
                     <| Rpc.AttachDatabase connectionSettings
                 )
             
-        TypeDatabase database ->
+        Msg.TypeDatabase database ->
             let
                 connectionSettings = 
                     updateDatabase model.connectionSettings database
@@ -124,7 +106,7 @@ update msg model =
                 , Cmd.none
                 )
             
-        TypeHost host ->
+        Msg.TypeHost host ->
             let
                 connectionSettings = 
                     updateHost model.connectionSettings host
@@ -133,7 +115,7 @@ update msg model =
                 , Cmd.none
                 )
             
-        TypePassword password ->
+        Msg.TypePassword password ->
             let
                 connectionSettings = 
                     updatePassword model.connectionSettings password
@@ -142,7 +124,7 @@ update msg model =
                 , Cmd.none
                 )
             
-        TypeUser user ->
+        Msg.TypeUser user ->
             let
                 connectionSettings = 
                     updateUser model.connectionSettings user
@@ -159,13 +141,13 @@ view model =
         , Html.div [ Attributes.class "pure-u-1-3" ] 
             [ Html.form 
                 [ Attributes.class "pure-form pure-form-stacked" 
-                , Events.onSubmit SubmitConnect
+                , Events.onSubmit Msg.SubmitConnect
                 ]
                 [ Html.fieldset [ Attributes.class "pure-group" ] 
-                    [ textInput "Host" model.connectionSettings.host TypeHost
-                    , textInput "Database" model.connectionSettings.database TypeDatabase
-                    , textInput "User" model.connectionSettings.user TypeUser
-                    , passwordInput "Password" model.connectionSettings.password TypePassword
+                    [ textInput "Host" model.connectionSettings.host Msg.TypeHost
+                    , textInput "Database" model.connectionSettings.database Msg.TypeDatabase
+                    , textInput "User" model.connectionSettings.user Msg.TypeUser
+                    , passwordInput "Password" model.connectionSettings.password Msg.TypePassword
                     ]
                 , Html.button 
                     [ Attributes.class "pure-button pure-button-primary" 
@@ -180,7 +162,7 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    WebSocket.listen socketServer SocketMessage
+    WebSocket.listen socketServer Rpc.decodeMessage
 
 
 formInput : String -> String -> String -> (String -> Msg) -> Html Msg
@@ -196,7 +178,7 @@ formInput type_ placeholder value msg =
 passwordInput : String -> String -> (String -> Msg) -> Html Msg
 passwordInput =
     formInput "password"
-    
+
 
 textInput : String -> String -> (String -> Msg) -> Html.Html Msg
 textInput =

@@ -2,6 +2,7 @@ module Rpc exposing (..)
 
 import Json.Decode as Decode
 import Json.Encode as Encode
+import Msg exposing (Msg)
 
 
 type alias ConnectionSettings =
@@ -16,10 +17,6 @@ type Method
     = AttachDatabase ConnectionSettings
 
 
-type ResultCode
-    = DatabaseConnected String
-
-
 request : Method -> String
 request method =
     Encode.encode 0 <| requestEncoder method
@@ -32,18 +29,37 @@ connectionSettingsEncoder settings =
         , ("password", Encode.string settings.password)
         , ("user", Encode.string settings.user)
         ]
-        
-        
+
+
+decodeMessage message =
+    let
+        result = Decode.decodeString responseDecoder message
+    in 
+        case result of
+            Ok msg ->
+                msg
+                
+            Err error ->
+                Msg.RpcError error
+
+
 responseDecoder =
-    Decode.field "code" Decode.int
+    Decode.at ["result", "code"] Decode.int
         |> Decode.andThen resultDecoder
         
 
 resultDecoder code =
     case code of
         0 ->
-            Decode.map DatabaseConnected 
-                <| Decode.field "result" Decode.string
+            Decode.succeed Msg.Connected
+
+        1 ->
+            Decode.succeed Msg.Disconnected
+            
+        2 ->
+            Decode.map Msg.QueryResult
+                <| Decode.at ["result", "data"]
+                <| Decode.list (Decode.list Decode.string)
             
         _ ->
             Decode.fail "Unhandled result code in response."
