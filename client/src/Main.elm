@@ -1,10 +1,12 @@
 import Debug
+import Interop
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Msg exposing (Msg)
 import Regex
 import Rpc
+import Task
 import WebSocket
 
 
@@ -83,7 +85,7 @@ update msg model =
     case msg of
         Msg.Connected ->
             ( { model | connectionState = Open }
-            , Cmd.none 
+            , Task.perform (\_ -> Msg.InitCodeEditor) <| Task.succeed True
             )
             
         Msg.Disconnected ->
@@ -94,6 +96,11 @@ update msg model =
         Msg.QueryResult queryResult ->
             ( { model | queryResult = queryResult }
             , Cmd.none
+            )
+            
+        Msg.InitCodeEditor ->
+            ( model
+            , Interop.initCodeEditor model.query.sql
             )
             
         Msg.RpcError error ->
@@ -184,13 +191,10 @@ viewConnected model =
             [ Attributes.class "pure-form"
             , Events.onSubmit Msg.SubmitQuery
             ]
-            [ Html.fieldset [ Attributes.class "pure-group" ]
-                [ Html.textarea 
-                    [ Attributes.class "pure-u-1-1" 
-                    , Events.onInput Msg.TypeQuery
-                    ] 
-                    [ Html.text model.query.sql ] 
-                ]
+            [ Html.div 
+                [ Attributes.id "code-editor" 
+                , Attributes.class "mb-1"
+                ] []
             , Html.button
                 [ Attributes.class "pure-button pure-button-primary button-error mr-1"
                 , Attributes.type_ "button"
@@ -203,7 +207,7 @@ viewConnected model =
                 ]
                 [ Html.text "Execute" ]
             ]
-        , Html.table [ Attributes.class "pure-table pure-table-striped" ]
+        , Html.table [ Attributes.class "pure-table pure-table-striped mt-1" ]
             [ Html.tbody []
                 <| viewQueryResult model.queryResult
             ]
@@ -236,11 +240,14 @@ viewDisconnected connectionSettings =
 
 
 viewError error =
-    Html.h6 [] [ Html.text error ]
+    Html.h5 [] [ Html.text error ]
 
 
 viewErrors errors =
-    Html.div [ Attributes.class "pure-u-1" ]
+    Html.div 
+        [ Attributes.id "errors"
+        , Attributes.class "pure-u-1" 
+        ]
         <| case List.isEmpty errors of
             True ->
                 []
@@ -259,7 +266,10 @@ viewQueryResultRow =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    WebSocket.listen model.socketServer Rpc.decodeMessage
+    Sub.batch 
+        [ WebSocket.listen model.socketServer Rpc.decodeMessage
+        , Interop.codeChange Msg.TypeQuery
+        ]
 
 
 formInput : String -> String -> String -> (String -> Msg) -> Html Msg

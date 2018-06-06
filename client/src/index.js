@@ -1,5 +1,12 @@
 // Import modules
+require('purecss');
+
+var CodeMirror = require('codemirror');
+require('codemirror/lib/codemirror.css');
+require('codemirror/mode/sql/sql');
+
 var Elm = require('./Main.elm');
+require('./style.css');
 
 // Set application flags
 var flags = {
@@ -9,3 +16,24 @@ var flags = {
 
 // Run the application
 var app = Elm.Main.fullscreen(flags);
+
+// Set application ports
+app.ports.initCodeEditor.subscribe(createCodeEditor);
+
+function createCodeEditor(value) {
+  requestAnimationFrame(function () {
+    var element = document.querySelector('#code-editor');
+    
+    if (element) {
+      var codeEditor = new CodeMirror(element, { 
+        lineNumbers: true,
+        mode: 'text/x-sql',
+        value: value
+      });
+      
+      codeEditor.on('changes', function (doc) {
+        app.ports.codeChange.send(doc.getValue());
+      });
+    }
+  });
+}
