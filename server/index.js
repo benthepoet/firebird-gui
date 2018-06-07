@@ -1,14 +1,23 @@
+const cookie = require('cookie');
 const WebSocket = require('ws');
+
 const rpc = require('./rpc');
+const session = require('./session');
 
-const serverOptions = {
-  port: process.env.PORT
-};
+const wss = new WebSocket.Server({ port: process.env.PORT });
 
-const wss = new WebSocket.Server(serverOptions);
+wss.on('headers', (headers, req) => {
+  const websocketKey = req.headers['sec-websocket-key'];
+  const cookies = cookie.parse(req.headers['cookie'] || '');
+  const sessionId = session.start(websocketKey, cookies.sessionId);
+  headers.push('set-cookie: ' + cookie.serialize('sessionId', sessionId));
+});
 
 wss.on('connection', (ws, req) => {
-  const wsKey = req.headers['sec-websocket-key'];
+  const websocketKey = req.headers['sec-websocket-key'];
+  const sessionId = session.get(websocketKey);
+  
+  console.log('Connection', websocketKey, sessionId);
   
   ws.on('message', read);
   
@@ -20,7 +29,7 @@ wss.on('connection', (ws, req) => {
         throw new Error('The specified method does not exist.');
       }
       
-      const result = await rpc.get(method)(wsKey, params);
+      const result = await rpc.get(method)(sessionId, params);
       send({ id, result });
     } catch ({ message }) {
       const error = { 
@@ -38,7 +47,7 @@ wss.on('connection', (ws, req) => {
 });
 
 wss.on('listening', () => {
-  console.log(`wss listening on ${serverOptions.port}`);
+  console.log(`wss listening on ${process.env.PORT}`);
 });
 
 module.exports = wss;

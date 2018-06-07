@@ -76,7 +76,8 @@ init { hostname, protocol } =
                 |> (++) (socketProtocol protocol)
     in
         ( Model connectionSettings Closed [] query [] socketServer
-        , Cmd.none
+        , WebSocket.send socketServer 
+            <| Rpc.request Rpc.GetConnectionState
         )
     
     

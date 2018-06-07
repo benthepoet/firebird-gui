@@ -22,6 +22,7 @@ type Method
     = AttachDatabase ConnectionSettings
     | DetachDatabase
     | ExecuteSql Query
+    | GetConnectionState
 
 
 request : Method -> String
@@ -99,4 +100,7 @@ requestEncoder method =
                 [ ("method", Encode.string "execute-sql")
                 , ("params", queryEncoder query)
                 ]
+                
+            GetConnectionState ->
+                [ ("method", Encode.string "get-connection-state") ]
         )

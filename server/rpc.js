@@ -16,7 +16,8 @@ module.exports = new Map([
   ['attach-database', attachDatabase],
   ['create-database', createDatabase],
   ['detach-database', detachDatabase],
-  ['execute-sql', executeSql]
+  ['execute-sql', executeSql],
+  ['get-connection-state', getConnectionState]
 ]);
 
 async function attachDatabase(wsKey, params) {
@@ -94,6 +95,17 @@ async function executeSql(wsKey, { sql }) {
   return {
     code: ResultCode.QUERY_RESULT,
     data: pipeline(result)
+  };
+}
+
+function getConnectionState(wsKey) {
+  if (state.connections.has(wsKey)) {
+    return { 
+      code: ResultCode.CONNECTED
+    };
+  }
+  return { 
+    code: ResultCode.DISCONNECTED
   };
 }
 
