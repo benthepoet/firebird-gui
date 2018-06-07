@@ -175,39 +175,37 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    Html.div [ Attributes.class "pure-g" ]
-        <| (::) (viewErrors model.errors)
-        <| case model.connectionState of
-            Closed ->
-                viewDisconnected model.connectionSettings
-            
-            Open ->
-                viewConnected model
-
+    Html.div []
+        [ Html.div [ Attributes.class "header" ] 
+            [ Html.h2 [] [ Html.text "Firebird Admin" ] ]
+        , Html.div [ Attributes.class "container" ]
+            <| (::) (viewErrors model.errors)
+            <| case model.connectionState of
+                Closed ->
+                    viewDisconnected model.connectionSettings
+                
+                Open ->
+                    viewConnected model
+        ]
 
 viewConnected model =
-    [ Html.div [ Attributes.class "pure-u-1" ]
+    [ Html.div []
         [ Html.form 
-            [ Attributes.class "pure-form"
-            , Events.onSubmit Msg.SubmitQuery
-            ]
+            [ Events.onSubmit Msg.SubmitQuery ]
             [ Html.div 
-                [ Attributes.id "code-editor" 
-                , Attributes.class "mb-1"
-                ] []
+                [ Attributes.id "code-editor" ] []
             , Html.button
-                [ Attributes.class "pure-button pure-button-primary button-error mr-1"
-                , Attributes.type_ "button"
+                [ Attributes.type_ "button"
                 , Events.onClick Msg.SubmitDisconnect
                 ]
                 [ Html.text "Disconnect" ]
             , Html.button 
-                [ Attributes.class "pure-button pure-button-primary"
+                [ Attributes.class "primary"
                 , Attributes.type_ "submit"
                 ]
                 [ Html.text "Execute" ]
             ]
-        , Html.table [ Attributes.class "pure-table pure-table-striped mt-1" ]
+        , Html.table []
             [ Html.tbody []
                 <| viewQueryResult model.queryResult
             ]
@@ -216,38 +214,35 @@ viewConnected model =
 
 
 viewDisconnected connectionSettings =
-    [ Html.div [ Attributes.class "pure-u-1-3" ] []
-    , Html.div [ Attributes.class "pure-u-1-3" ] 
+    [ Html.div [ Attributes.class "col-sm-4" ] []
+    , Html.div [ Attributes.class "col-sm-4" ] 
         [ Html.form 
-            [ Attributes.class "pure-form pure-form-stacked" 
-            , Events.onSubmit Msg.SubmitConnect
-            ]
-            [ Html.fieldset [ Attributes.class "pure-group" ] 
-                [ textInput "Host" connectionSettings.host Msg.TypeHost
-                , textInput "Database" connectionSettings.database Msg.TypeDatabase
-                , textInput "User" connectionSettings.user Msg.TypeUser
-                , passwordInput "Password" connectionSettings.password Msg.TypePassword
-                ]
+            [ Events.onSubmit Msg.SubmitConnect ]
+            [ textInput "Host" connectionSettings.host Msg.TypeHost
+            , textInput "Database" connectionSettings.database Msg.TypeDatabase
+            , textInput "User" connectionSettings.user Msg.TypeUser
+            , passwordInput "Password" connectionSettings.password Msg.TypePassword
             , Html.button 
-                [ Attributes.class "pure-button pure-button-primary" 
+                [ Attributes.class "primary" 
                 , Attributes.type_ "submit"
                 ] 
                 [ Html.text "Connect" ]
             ]
         ]
-    , Html.div [ Attributes.class "pure-u-1-3" ] []
+    , Html.div [ Attributes.class "col-sm-4" ] []
     ]
 
 
 viewError error =
-    Html.h5 [] [ Html.text error ]
+    Html.div [ Attributes.class "card error fluid" ]
+        [ Html.div [ Attributes.class "section" ]
+            [ Html.h6 [] [ Html.text error ] ]
+        ]
 
 
 viewErrors errors =
     Html.div 
-        [ Attributes.id "errors"
-        , Attributes.class "pure-u-1" 
-        ]
+        [ Attributes.id "errors" ]
         <| case List.isEmpty errors of
             True ->
                 []

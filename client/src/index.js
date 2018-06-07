@@ -1,5 +1,5 @@
 // Import modules
-require('purecss');
+require('mini.css/dist/mini-default.css');
 
 var CodeMirror = require('codemirror');
 require('codemirror/lib/codemirror.css');
