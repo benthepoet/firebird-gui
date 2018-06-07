@@ -177,7 +177,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     Html.div []
-        [ Html.div [ Attributes.class "header" ] 
+        [ Html.div [ Attributes.class "header row" ] 
             [ Html.h2 [] [ Html.text "Firebird Admin" ] ]
         , Html.div [ Attributes.class "container" ]
             <| (::) (viewErrors model.errors)
