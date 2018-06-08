@@ -1,4 +1,5 @@
 // Import modules
+require('animate.css/animate.css');
 require('mini.css/dist/mini-default.css');
 
 var CodeMirror = require('codemirror');

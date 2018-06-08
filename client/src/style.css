@@ -7,6 +7,10 @@
   font-weight: 300;
 }
 
+.align-right {
+  text-align: right;
+}
+
 #code-editor {
   border: 1px solid #ddd;
   border-radius: 2px;

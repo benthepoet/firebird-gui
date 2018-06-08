@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/benthepoet/firebird-gui#readme",
   "dependencies": {
+    "animate.css": "^3.6.1",
     "codemirror": "^5.38.0",
     "cookie": "^0.3.1",
     "css-loader": "^0.28.11",

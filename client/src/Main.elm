@@ -97,7 +97,7 @@ update msg model =
             ( { model | connectionState = Closed }
             , Cmd.none
             )
-            
+
         Msg.QueryResult queryResult ->
             ( { model | queryResult = queryResult }
             , Cmd.none
@@ -107,7 +107,7 @@ update msg model =
             ( { model | errors = Debug.log "error" [error] }
             , Cmd.none
             )
-        
+
         Msg.SubmitConnect ->
             let
                 { connectionSettings } = model
@@ -117,20 +117,20 @@ update msg model =
                     <| Rpc.request 
                     <| Rpc.AttachDatabase connectionSettings
                 )
-                
+
         Msg.SubmitDisconnect ->
             ( model |> clearErrors
             , WebSocket.send model.socketServer
                 <| Rpc.request Rpc.DetachDatabase
             )
-            
+
         Msg.SubmitQuery ->
             ( { model | queryResult = [] } |> clearErrors
             , WebSocket.send model.socketServer
                 <| Rpc.request 
                 <| Rpc.ExecuteSql model.query
             )
-            
+
         Msg.TypeDatabase database ->
             let
                 connectionSettings = 
@@ -139,7 +139,7 @@ update msg model =
                 ( { model | connectionSettings = connectionSettings } 
                 , Cmd.none
                 )
-            
+
         Msg.TypeHost host ->
             let
                 connectionSettings = 
@@ -148,7 +148,7 @@ update msg model =
                 ( { model | connectionSettings = connectionSettings } 
                 , Cmd.none
                 )
-            
+
         Msg.TypePassword password ->
             let
                 connectionSettings = 
@@ -214,27 +214,36 @@ viewConnected model =
 
 
 viewDisconnected connectionSettings =
-    [ Html.div [ Attributes.class "col-sm-4" ] []
-    , Html.div [ Attributes.class "col-sm-4" ] 
-        [ Html.form 
-            [ Events.onSubmit Msg.SubmitConnect ]
-            [ textInput "Host" connectionSettings.host Msg.TypeHost
-            , textInput "Database" connectionSettings.database Msg.TypeDatabase
-            , textInput "User" connectionSettings.user Msg.TypeUser
-            , passwordInput "Password" connectionSettings.password Msg.TypePassword
-            , Html.button 
-                [ Attributes.class "primary" 
-                , Attributes.type_ "submit"
-                ] 
-                [ Html.text "Connect" ]
+    [ Html.div [ Attributes.class "row" ]
+        [ Html.div [ Attributes.class "col-sm" ] []
+        , Html.div [] 
+            [ Html.form 
+                [ Events.onSubmit Msg.SubmitConnect ]
+                [ Html.fieldset [] 
+                    [ Html.legend [] [ Html.text "Connection Parameters" ]
+                    , inputRow "Host"
+                        <| textInput "Host" connectionSettings.host Msg.TypeHost
+                    , inputRow "Database" 
+                        <| textInput "Database" connectionSettings.database Msg.TypeDatabase
+                    , inputRow "User"
+                        <| textInput "User" connectionSettings.user Msg.TypeUser
+                    , inputRow "Password"
+                        <| passwordInput "Password" connectionSettings.password Msg.TypePassword
+                    ]
+                , Html.button 
+                    [ Attributes.class "primary" 
+                    , Attributes.type_ "submit"
+                    ] 
+                    [ Html.text "Connect" ]
+                ]
             ]
+        , Html.div [ Attributes.class "col-sm" ] []
         ]
-    , Html.div [ Attributes.class "col-sm-4" ] []
     ]
 
 
 viewError error =
-    Html.div [ Attributes.class "card error fluid" ]
+    Html.div [ Attributes.class "card animated fadeInDown error fluid" ]
         [ Html.div [ Attributes.class "section" ]
             [ Html.h6 [] [ Html.text error ] ]
         ]
@@ -285,3 +294,11 @@ passwordInput =
 textInput : String -> String -> (String -> Msg) -> Html.Html Msg
 textInput =
     formInput "text"
+
+
+inputRow label input =
+    Html.div [ Attributes.class "row align-right" ]
+        [ Html.div [ Attributes.class "col-sm-3" ] 
+            [ Html.label [] [ Html.text label ] ]
+        , Html.div [ Attributes.class "col-sm" ] [ input ]
+        ]
