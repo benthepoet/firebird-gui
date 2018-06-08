@@ -18,6 +18,7 @@ type alias Model =
     { connectionSettings : Rpc.ConnectionSettings
     , connectionState : ConnectionState
     , errors : List String
+    , errorQueue : List String
     , query : Rpc.Query
     , queryResult : List (List String)
     , socketServer : String

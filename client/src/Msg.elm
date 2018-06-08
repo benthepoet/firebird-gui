@@ -3,6 +3,7 @@ module Msg exposing (..)
 type Msg 
     = Connected
     | Disconnected
+    | PopError
     | QueryResult (List (List String))
     | RpcError String
     | SubmitConnect
