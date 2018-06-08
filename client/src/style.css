@@ -1,6 +1,8 @@
 .header {
   background-color: #016F90;
   color: #efefef;
+  position: relative;
+  z-index: 8;
 }
 
 .header h2 {

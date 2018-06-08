@@ -177,7 +177,23 @@ view : Model -> Html Msg
 view model =
     Html.div []
         [ Html.div [ Attributes.class "header row" ] 
-            [ Html.h2 [] [ Html.text "Firebird Admin" ] ]
+            [ Html.div [ Attributes.class "col-sm" ] 
+                [ Html.h2 [] [ Html.text "Firebird Admin" ] 
+                ]
+            , Html.div []
+                <| case model.connectionState of
+                    Closed ->
+                        []
+                    
+                    Open -> 
+                        [ Html.button
+                            [ Attributes.type_ "button"
+                            , Attributes.class "inverse"
+                            , Events.onClick Msg.SubmitDisconnect
+                            ]
+                            [ Html.text "Disconnect" ]
+                        ]
+            ]
         , Html.div [ Attributes.class "container" ]
             <| (::) (viewErrors model.errors)
             <| case model.connectionState of
@@ -194,11 +210,6 @@ viewConnected model =
             [ Events.onSubmit Msg.SubmitQuery ]
             [ Html.div 
                 [ Attributes.id "code-editor" ] []
-            , Html.button
-                [ Attributes.type_ "button"
-                , Events.onClick Msg.SubmitDisconnect
-                ]
-                [ Html.text "Disconnect" ]
             , Html.button 
                 [ Attributes.class "primary"
                 , Attributes.type_ "submit"
@@ -206,7 +217,8 @@ viewConnected model =
                 [ Html.text "Execute" ]
             ]
         , Html.table []
-            [ Html.tbody []
+            [ Html.thead [] []
+            , Html.tbody []
                 <| viewQueryResult model.queryResult
             ]
         ]
