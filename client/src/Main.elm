@@ -3,6 +3,7 @@ import Interop
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
+import Model exposing (Model)
 import Msg exposing (Msg)
 import Regex
 import Rpc
@@ -10,7 +11,7 @@ import Task
 import WebSocket
 
 
-main : Program Flags Model Msg
+main : Program Model.Flags Model Msg
 main =
     Html.programWithFlags
         { init = init
@@ -18,27 +19,6 @@ main =
         , view = view
         , subscriptions = subscriptions
         }
-
-
-type ConnectionState 
-    = Closed 
-    | Open
-
-
-type alias Flags = 
-    { hostname : String 
-    , protocol: String
-    }
-
-
-type alias Model =
-    { connectionSettings : Rpc.ConnectionSettings
-    , connectionState : ConnectionState
-    , errors : List String
-    , query : Rpc.Query
-    , queryResult : List (List String)
-    , socketServer : String
-    }
 
 
 clearErrors model =
@@ -70,7 +50,7 @@ socketProtocol =
     Regex.replace Regex.All (Regex.regex "http") (\_ -> "ws") 
 
 
-init : Flags -> ( Model, Cmd Msg )
+init : Model.Flags -> ( Model, Cmd Msg )
 init { hostname, protocol } =
     let
         connectionSettings = Rpc.ConnectionSettings "" "" "" ""
@@ -79,7 +59,7 @@ init { hostname, protocol } =
             "//" ++ hostname ++ "/ws" 
                 |> (++) (socketProtocol protocol)
     in
-        ( Model connectionSettings Closed [] query [] socketServer
+        ( Model connectionSettings Model.Closed [] query [] socketServer
         , WebSocket.send socketServer 
             <| Rpc.request Rpc.GetConnectionState
         )
@@ -89,12 +69,12 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Msg.Connected ->
-            ( { model | connectionState = Open }
+            ( { model | connectionState = Model.Open }
             , Interop.initCodeEditor model.query.sql
             )
             
         Msg.Disconnected ->
-            ( { model | connectionState = Closed }
+            ( { model | connectionState = Model.Closed }
             , Cmd.none
             )
 
@@ -182,10 +162,10 @@ view model =
                 ]
             , Html.div []
                 <| case model.connectionState of
-                    Closed ->
+                    Model.Closed ->
                         []
                     
-                    Open -> 
+                    Model.Open -> 
                         [ Html.button
                             [ Attributes.type_ "button"
                             , Attributes.class "inverse"
@@ -197,10 +177,10 @@ view model =
         , Html.div [ Attributes.class "container" ]
             <| (::) (viewErrors model.errors)
             <| case model.connectionState of
-                Closed ->
+                Model.Closed ->
                     viewDisconnected model.connectionSettings
                 
-                Open ->
+                Model.Open ->
                     viewConnected model
         ]
 
