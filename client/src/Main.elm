@@ -41,6 +41,10 @@ type alias Model =
     }
 
 
+clearErrors model =
+    { model | errors = [] }
+
+
 updateDatabase : Rpc.ConnectionSettings -> String -> Rpc.ConnectionSettings
 updateDatabase settings database =
     { settings | database = database }
@@ -86,7 +90,7 @@ update msg model =
     case msg of
         Msg.Connected ->
             ( { model | connectionState = Open }
-            , Task.perform (\_ -> Msg.InitCodeEditor) <| Task.succeed True
+            , Interop.initCodeEditor model.query.sql
             )
             
         Msg.Disconnected ->
@@ -98,12 +102,7 @@ update msg model =
             ( { model | queryResult = queryResult }
             , Cmd.none
             )
-            
-        Msg.InitCodeEditor ->
-            ( model
-            , Interop.initCodeEditor model.query.sql
-            )
-            
+
         Msg.RpcError error ->
             ( { model | errors = Debug.log "error" [error] }
             , Cmd.none
@@ -113,20 +112,20 @@ update msg model =
             let
                 { connectionSettings } = model
             in
-                ( model
+                ( model |> clearErrors
                 , WebSocket.send model.socketServer 
                     <| Rpc.request 
                     <| Rpc.AttachDatabase connectionSettings
                 )
                 
         Msg.SubmitDisconnect ->
-            ( model
+            ( model |> clearErrors
             , WebSocket.send model.socketServer
                 <| Rpc.request Rpc.DetachDatabase
             )
             
         Msg.SubmitQuery ->
-            ( { model | queryResult = [] }
+            ( { model | queryResult = [] } |> clearErrors
             , WebSocket.send model.socketServer
                 <| Rpc.request 
                 <| Rpc.ExecuteSql model.query

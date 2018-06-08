@@ -2,8 +2,7 @@ module Msg exposing (..)
 
 type Msg 
     = Connected
-    | Disconnected 
-    | InitCodeEditor
+    | Disconnected
     | QueryResult (List (List String))
     | RpcError String
     | SubmitConnect
