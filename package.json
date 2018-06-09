@@ -4,6 +4,7 @@
   "description": "A web-based interface for working with Firebird databases.",
   "main": "index.js",
   "scripts": {
+    "build": "webpack -p",
     "serve": "webpack-dev-server --host=0.0.0.0",
     "start": "node index.js"
   },
