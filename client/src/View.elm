@@ -94,16 +94,15 @@ viewError queue error =
         attributes = 
             case List.length queue of
                 0 ->
-                    [ Attributes.class "card error fluid animated fadeIn" ]
+                    [ Attributes.class "card error fluid animated fadeInDown" ]
                     
                 _ ->
-                    [ Attributes.class "card error fluid animated fadeOut"
+                    [ Attributes.class "card error fluid animated fadeOutDown"
                     , onAnimationEnd Msg.PopError
                     ]
     in
         Html.div attributes
-            [ Html.div [ Attributes.class "section" ]
-                [ Html.h6 [] [ Html.text error ] ]
+            [ Html.h6 [ Attributes.class "section" ] [ Html.text error ]
             ]
 
 
