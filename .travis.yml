@@ -8,4 +8,4 @@ before_script:
   - elm package install --yes
 
 script:
-  - npm run build
+  - elm-make ./client/src/Main.elm --warn
