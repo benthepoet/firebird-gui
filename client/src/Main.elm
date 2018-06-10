@@ -33,7 +33,7 @@ init { hostname, protocol } =
             "//" ++ hostname ++ "/ws" 
                 |> (++) (socketProtocol protocol)
     in
-        ( Model connectionSettings Model.Closed ["A"] [] query [] socketServer
+        ( Model connectionSettings Model.Closed [] query [] socketServer
         , WebSocket.send socketServer 
             <| Rpc.request Rpc.GetConnectionState
         )

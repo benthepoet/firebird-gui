@@ -22,7 +22,7 @@ update msg model =
             )
             
         Msg.PopError ->
-            ( { model | errors = model.errorQueue, errorQueue = [] }
+            ( { model | errors = Maybe.withDefault [] <| List.tail model.errors }
             , Cmd.none
             )
 
@@ -32,7 +32,7 @@ update msg model =
             )
 
         Msg.RpcError error ->
-            ( { model | errorQueue = Debug.log "error" [error] }
+            ( { model | errors = Debug.log "error" <| model.errors ++ [error] }
             , Cmd.none
             )
 

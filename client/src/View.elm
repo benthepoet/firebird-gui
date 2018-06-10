@@ -30,7 +30,7 @@ view model =
                         ]
             ]
         , Html.div [ Attributes.class "container" ]
-            <| (::) (viewErrors model.errors model.errorQueue)
+            <| (::) (viewErrors model.errors)
             <| case model.connectionState of
                 Model.Closed ->
                     viewDisconnected model.connectionSettings
@@ -89,32 +89,29 @@ viewDisconnected connectionSettings =
     ]
 
 
-viewError queue error =
+viewErrors errors =
     let
-        attributes = 
-            case List.length queue of
-                0 ->
+        children = case errors of
+            [] -> 
+                []
+                
+            [head] ->
+                [ Html.div
                     [ Attributes.class "card error fluid animated fadeInDown" ]
-                    
-                _ ->
+                    [ Html.h6 [ Attributes.class "section" ] [ Html.text head ]
+                    ]
+                ]
+            
+            head :: tail ->
+                [ Html.div
                     [ Attributes.class "card error fluid animated fadeOutDown"
                     , onAnimationEnd Msg.PopError
                     ]
+                    [ Html.h6 [ Attributes.class "section" ] [ Html.text head ]
+                    ]
+                ]
     in
-        Html.div attributes
-            [ Html.h6 [ Attributes.class "section" ] [ Html.text error ]
-            ]
-
-
-viewErrors errors queue =
-    Html.div 
-        [ Attributes.id "errors" ]
-        <| case List.isEmpty errors of
-            True ->
-                []
-                
-            False ->
-                List.map (viewError queue) errors
+        Html.div [ Attributes.id "errors" ] children
 
 
 viewQueryResult =
