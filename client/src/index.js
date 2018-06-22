@@ -6,8 +6,8 @@ var CodeMirror = require('codemirror');
 require('codemirror/lib/codemirror.css');
 require('codemirror/mode/sql/sql');
 
-var Elm = require('./Main.elm');
-require('./style.css');
+var Elm = require('./elm/Main.elm');
+require('./css/style.css');
 
 // Set application flags
 var flags = {

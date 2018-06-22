@@ -4,7 +4,7 @@
     "repository": "https://github.com/benthepoet/firebird-gui.git",
     "license": "BSD3",
     "source-directories": [
-        "./client/src"
+        "./client/src/elm"
     ],
     "exposed-modules": [],
     "dependencies": {

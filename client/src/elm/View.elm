@@ -95,7 +95,7 @@ viewErrors errors =
             [] -> 
                 []
                 
-            [head] ->
+            [ head ] ->
                 [ Html.div
                     [ Attributes.class "card error fluid animated fadeInDown" ]
                     [ Html.h6 [ Attributes.class "section" ] [ Html.text head ]

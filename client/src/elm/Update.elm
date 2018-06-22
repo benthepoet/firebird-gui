@@ -13,11 +13,13 @@ update msg model =
     case msg of
         Msg.Connected ->
             ( { model | connectionState = Model.Open }
+                |> clearErrors
             , Interop.initCodeEditor model.query.sql
             )
             
         Msg.Disconnected ->
             ( { model | connectionState = Model.Closed }
+                |> clearErrors
             , Cmd.none
             )
             
