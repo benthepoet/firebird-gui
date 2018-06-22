@@ -8,4 +8,4 @@ before_script:
   - elm package install --yes
 
 script:
-  - elm-make ./client/src/Main.elm --warn
+  - elm-make ./client/src/elm/Main.elm --warn
